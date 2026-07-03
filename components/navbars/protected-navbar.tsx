@@ -24,17 +24,12 @@ function getGreeting() {
   return "Good night";
 }
 
-// Hitung lebar scrollbar sekali, reuse terus
-function getScrollbarWidth() {
-  if (typeof window === "undefined") return 0;
-  return window.innerWidth - document.documentElement.clientWidth;
-}
-
 export function ProtectedNavbar() {
   const [userName, setUserName] = useState<string | null>(null);
   const [greeting, setGreeting] = useState(getGreeting());
   const [greetingVisible, setGreetingVisible] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [scrollbarOffset, setScrollbarOffset] = useState("0px");
   const router = useRouter();
 
   useEffect(() => {
@@ -64,27 +59,19 @@ export function ProtectedNavbar() {
   // Saat dropdown open/close, kompensasi scrollbar width di navbar
   // supaya tidak ikut geser waktu Radix lock body scroll
   useEffect(() => {
-    const scrollbarWidth = getScrollbarWidth();
+    const calculateScrollbarOffset = () => {
+      if (dropdownOpen && typeof window !== "undefined") {
+        const width = window.innerWidth - document.documentElement.clientWidth;
+        setScrollbarOffset(width > 0 ? `${width}px` : "0px");
+      } else {
+        setScrollbarOffset("0px");
+      }
+    };
 
-    if (dropdownOpen && scrollbarWidth > 0) {
-      // Radix akan tambah padding-right ke body sebesar scrollbarWidth,
-      // navbar fixed tidak kena efek itu jadi kita kompensasi manual
-      document.documentElement.style.setProperty(
-        "--navbar-scrollbar-offset",
-        `${scrollbarWidth}px`
-      );
-    } else {
-      document.documentElement.style.setProperty(
-        "--navbar-scrollbar-offset",
-        "0px"
-      );
-    }
+    calculateScrollbarOffset();
 
     return () => {
-      document.documentElement.style.setProperty(
-        "--navbar-scrollbar-offset",
-        "0px"
-      );
+      setScrollbarOffset("0px");
     };
   }, [dropdownOpen]);
 
@@ -100,7 +87,7 @@ export function ProtectedNavbar() {
       id="navbar-app"
       className="fixed top-0 left-0 z-40"
       style={{
-        width: "calc(100% - var(--navbar-scrollbar-offset, 0px))",
+        width: `calc(100% - ${scrollbarOffset})`,
       }}
     >
       <div className="lg:max-w-7xl mx-auto md:px-16 px-6">
