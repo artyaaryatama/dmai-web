@@ -17,7 +17,6 @@ const BLUR_DATA_URL =
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const session = await fetchSessionBySlug(slug)
-  console.log(session)
 
   if (!session) notFound()
 
