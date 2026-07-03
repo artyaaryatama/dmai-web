@@ -6,25 +6,30 @@ import { createClient } from '@/lib/supabase/client'
 
 export function AuthStateListener() {
   const router = useRouter()
-  const hasRefreshedRef = useRef(false)
+  const refreshTimeoutRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
     const supabase = createClient()
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      // Only refresh once when user actually signs in, not on every auth state change
-      // This prevents repeated refreshes during navigation and hydration
-      if (event === 'SIGNED_IN' && !hasRefreshedRef.current) {
-        hasRefreshedRef.current = true
-        router.refresh()
-      }
-      
-      // Reset flag if user signs out
-      if (event === 'SIGNED_OUT') {
-        hasRefreshedRef.current = false
+      if (event === 'SIGNED_IN') {
+        // Debounce refresh to prevent multiple rapid refreshes that cause layout flashing
+        // But still allow refresh when auth state actually changes (e.g. multi-tab/multi-account scenario)
+        if (refreshTimeoutRef.current) {
+          clearTimeout(refreshTimeoutRef.current)
+        }
+        
+        refreshTimeoutRef.current = setTimeout(() => {
+          router.refresh()
+        }, 100)
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current)
+      }
+    }
   }, [router])
 
   return null
