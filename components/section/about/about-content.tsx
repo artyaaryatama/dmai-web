@@ -3,8 +3,7 @@ import Link from "next/link"
 import { Section } from "@/components/layout/section-wrapper"
 import { Button } from "@/components/ui/button"
 import { Route } from "next"
-import { ImageSquare, PenNib, ShapesIcon } from "@phosphor-icons/react/dist/ssr"
-import { Icon } from "@phosphor-icons/react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 
 type AttributionItem = {
@@ -14,32 +13,20 @@ type AttributionItem = {
   href: string
 }
 
-type AttributionRowProps = {
-  label: string
-  items: AttributionItem[]
-}
-
-function AttributionRow({ label, items }: AttributionRowProps) {
+function AttributionItem({ item }: { item: AttributionItem }) {
   return (
-    <div className="flex flex-col gap-2 items-start">
-      <div className="w-30">
-        <div className="rounded-sm text-sm px-3 py-1.5 bg-background font-semibold w-fit">
-        {label}
+    <Link
+      href={item.href as Route}
+      target="_blank"
+      className="group flex flex-col gap-1 p-3 rounded-lg hover:bg-foreground/5 transition-colors"
+    >
+      <div className="font-semibold text-sm group-hover:underline underline-offset-2">
+        {item.title}
       </div>
+      <div className="text-xs text-muted-foreground">
+        Karya {item.author} • {item.source}
       </div>
-      <div className="flex flex-col gap-2 flex-1 pl-3">
-        {items.map((item, index) => (
-          <Link
-            key={item.href + index}
-            href={item.href as Route}
-            target="_blank"
-            className="text-sm/4 hover:cursor-pointer font-medium"
-          >
-            {item.title} — karya {item.author}, dari {item.source}.
-          </Link>
-        ))}
-      </div>
-    </div>
+    </Link>
   )
 }
 
@@ -199,30 +186,43 @@ export default function AboutContent() {
             </div>
 
             <div className="flex-1 flex flex-col gap-6">
-              <AttributionRow
-                label="Ilustrasi"
-                items={[
-                  { title: "Whimsical Outdoor Scene", author: "Steph Meade", source: "Lummi", href: "https://www.lummi.ai/illustration/whimsical-outdoor-scene-akvmp" },
-                  { title: "Minimalist Outdoor Scene", author: "Steph Meade", source: "Lummi", href: "https://www.lummi.ai/illustration/minimalist-outdoor-scene-ctxtu" },
-                  { title: "Serene Night by the Lake", author: "Steph Meade", source: "Lummi", href: "https://www.lummi.ai/illustration/serene-night-by-the-lake-bu00d" },
-                  { title: "Tranquil Countryside Art", author: "Daniel Norin", source: "Lummi", href: "https://www.lummi.ai/illustration/tranquil-countryside-art-qacmz" },
-                ]}
-              />
+              <Tabs defaultValue="illustrations" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsTrigger value="illustrations">Ilustrasi</TabsTrigger>
+                  <TabsTrigger value="doodles">Doodle</TabsTrigger>
+                  <TabsTrigger value="graphics">Grafis & Ikon</TabsTrigger>
+                </TabsList>
 
-              <AttributionRow
-                label="Doodle"
-                items={[
-                  { title: "Running, Ice Cream, Coffee, Meditating, Reading, Float Doodle", author: "Pablo Stanley", source: "Open Doodles", href: "https://www.opendoodles.com/" },
-                ]}
-              />
+                <TabsContent value="illustrations" className="flex flex-col gap-2">
+                  <AttributionItem
+                    item={{ title: "Whimsical Outdoor Scene", author: "Steph Meade", source: "Lummi", href: "https://www.lummi.ai/illustration/whimsical-outdoor-scene-akvmp" }}
+                  />
+                  <AttributionItem
+                    item={{ title: "Minimalist Outdoor Scene", author: "Steph Meade", source: "Lummi", href: "https://www.lummi.ai/illustration/minimalist-outdoor-scene-ctxtu" }}
+                  />
+                  <AttributionItem
+                    item={{ title: "Serene Night by the Lake", author: "Steph Meade", source: "Lummi", href: "https://www.lummi.ai/illustration/serene-night-by-the-lake-bu00d" }}
+                  />
+                  <AttributionItem
+                    item={{ title: "Tranquil Countryside Art", author: "Daniel Norin", source: "Lummi", href: "https://www.lummi.ai/illustration/tranquil-countryside-art-qacmz" }}
+                  />
+                </TabsContent>
 
-              <AttributionRow
-                label="Grafis & Ikon"
-                items={[
-                  { title: "Bloom - Organic Modern Shapes", author: "Noko Washiyama", source: "Figma Community", href: "https://www.figma.com/community/file/1506926724873525389/bloom-organic-modern-shpes" },
-                  { title: "Bloom — Mod Floral Graphics", author: "Noko Washiyama", source: "Figma Community", href: "https://www.figma.com/community/file/1506973666049607884/bloom-mod-floral-graphics" },
-                ]}
-              />
+                <TabsContent value="doodles" className="flex flex-col gap-2">
+                  <AttributionItem
+                    item={{ title: "Running, Ice Cream, Coffee, Meditating, Reading, Float Doodle", author: "Pablo Stanley", source: "Open Doodles", href: "https://www.opendoodles.com/" }}
+                  />
+                </TabsContent>
+
+                <TabsContent value="graphics" className="flex flex-col gap-2">
+                  <AttributionItem
+                    item={{ title: "Bloom - Organic Modern Shapes", author: "Noko Washiyama", source: "Figma Community", href: "https://www.figma.com/community/file/1506926724873525389/bloom-organic-modern-shpes" }}
+                  />
+                  <AttributionItem
+                    item={{ title: "Bloom — Mod Floral Graphics", author: "Noko Washiyama", source: "Figma Community", href: "https://www.figma.com/community/file/1506973666049607884/bloom-mod-floral-graphics" }}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
 
           </div>
